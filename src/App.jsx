@@ -5,13 +5,25 @@ import './App.css';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       setCurrentUser(JSON.parse(savedUser));
     }
+
+    const savedTheme = localStorage.getItem('studyTheme') || 'dark';
+    setTheme(savedTheme);
+    document.documentElement.setAttribute('data-theme', savedTheme);
   }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('studyTheme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
 
   const handleLogin = (user) => {
     setCurrentUser(user);
@@ -26,7 +38,12 @@ function App() {
   return (
     <div className="app-container">
       {currentUser ? (
-        <Dashboard user={currentUser} onLogout={handleLogout} />
+        <Dashboard
+          user={currentUser}
+          onLogout={handleLogout}
+          theme={theme}
+          toggleTheme={toggleTheme}
+        />
       ) : (
         <LoginPage onLogin={handleLogin} />
       )}

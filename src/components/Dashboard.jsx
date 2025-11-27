@@ -7,7 +7,7 @@ import TodoList from './TodoList';
 import StudyTips from './StudyTips';
 import './Dashboard.css';
 
-const Dashboard = ({ user, onLogout }) => {
+const Dashboard = ({ user, onLogout, theme, toggleTheme }) => {
     const [points, setPoints] = useState(0);
     const [greeting, setGreeting] = useState('');
 
@@ -47,6 +47,13 @@ const Dashboard = ({ user, onLogout }) => {
                     <h1>Study Streak</h1>
                     <div className="header-controls">
                         <WeatherWidget />
+                        <button
+                            onClick={toggleTheme}
+                            className="theme-toggle-btn"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'dark' ? '☀️' : '🌙'}
+                        </button>
                         <button onClick={onLogout} className="logout-btn">Logout</button>
                     </div>
                 </div>
@@ -55,9 +62,9 @@ const Dashboard = ({ user, onLogout }) => {
 
             <div className="dashboard-grid">
                 <div className="main-column">
-                    <StreakCounter points={points} />
-                    <TodoList />
                     <Timer onComplete={handleTimerComplete} />
+                    <TodoList />
+                    <StreakCounter points={points} />
                 </div>
 
                 <div className="side-column">
