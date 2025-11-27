@@ -1,0 +1,5 @@
+/* App specific styles */
+.app-header {
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
