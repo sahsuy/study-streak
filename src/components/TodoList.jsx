@@ -60,6 +60,32 @@ const TodoList = () => {
         saveTasks(updatedTasks);
     };
 
+    const deleteTask = (id) => {
+        const updatedTasks = tasks.filter(task => task.id !== id);
+        if (activeTaskId === id) setActiveTaskId(null);
+        saveTasks(updatedTasks);
+    };
+
+    const clearCompleted = () => {
+        const updatedTasks = tasks.filter(task => task.status !== 'completed');
+        saveTasks(updatedTasks);
+    };
+
+    const getProgress = () => {
+        if (tasks.length === 0) return 0;
+        const completed = tasks.filter(task => task.status === 'completed').length;
+        return Math.round((completed / tasks.length) * 100);
+    };
+
+    const getSmartGreeting = () => {
+        const progress = getProgress();
+        if (tasks.length === 0) return "Ready to plan your day?";
+        if (progress === 0) return "Let's get started!";
+        if (progress < 50) return "Good start, keep going!";
+        if (progress < 100) return "Almost there, you got this!";
+        return "All done! Amazing work! 🎉";
+    };
+
     const formatDuration = (seconds) => {
         if (seconds < 60) return `${seconds}s`;
         const mins = Math.floor(seconds / 60);
@@ -68,7 +94,17 @@ const TodoList = () => {
 
     return (
         <div className="todo-container">
-            <h3>Daily Planner</h3>
+            <div className="todo-header">
+                <h3>Daily Planner</h3>
+                <span className="progress-text">{getSmartGreeting()}</span>
+            </div>
+
+            <div className="progress-container">
+                <div
+                    className="progress-bar"
+                    style={{ width: `${getProgress()}%` }}
+                ></div>
+            </div>
 
             <form onSubmit={addTask} className="todo-form">
                 <input
@@ -100,11 +136,24 @@ const TodoList = () => {
                             {task.status === 'active' && (
                                 <button onClick={() => completeTask(task.id)} className="complete-btn">Done</button>
                             )}
+                            <button
+                                onClick={() => deleteTask(task.id)}
+                                className="delete-btn"
+                                aria-label="Delete task"
+                            >
+                                🗑️
+                            </button>
                         </div>
                     </div>
                 ))}
                 {tasks.length === 0 && <p className="empty-state">No tasks yet. Plan your day!</p>}
             </div>
+
+            {tasks.some(t => t.status === 'completed') && (
+                <button onClick={clearCompleted} className="clear-completed-btn">
+                    Clear Completed
+                </button>
+            )}
         </div>
     );
 };

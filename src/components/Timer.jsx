@@ -13,6 +13,25 @@ const Timer = ({ onComplete }) => {
     const [isActive, setIsActive] = useState(false);
     const [mode, setMode] = useState('work'); // 'work' or 'break'
 
+    // Simple beep sound (Base64 MP3)
+    const ALARM_SOUND = 'data:audio/mp3;base64,//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NExAAAAANIAAAAAExBTUUzLjEwMKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq';
+
+    useEffect(() => {
+        // Request notification permission
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+    }, []);
+
+    useEffect(() => {
+        // Update document title
+        if (isActive) {
+            document.title = `(${formatTime(timeLeft)}) ${mode === 'work' ? 'Focus' : 'Break'} - Study Streak`;
+        } else {
+            document.title = 'Study Streak';
+        }
+    }, [isActive, timeLeft, mode]);
+
     useEffect(() => {
         // Reset timer when method changes
         setIsActive(false);
@@ -33,12 +52,27 @@ const Timer = ({ onComplete }) => {
         return () => clearInterval(interval);
     }, [isActive, timeLeft]);
 
+    const playAlarm = () => {
+        const audio = new Audio(ALARM_SOUND);
+        audio.play().catch(e => console.log('Audio play failed:', e));
+    };
+
+    const sendNotification = (title, body) => {
+        if (Notification.permission === 'granted') {
+            new Notification(title, { body, icon: '/vite.svg' });
+        }
+    };
+
     const handleComplete = () => {
+        playAlarm();
+
         if (mode === 'work') {
+            sendNotification("Time's Up!", "Great job! Take a break.");
             if (onComplete) onComplete(); // Award points
             setMode('break');
             setTimeLeft(STUDY_METHODS[method].break);
         } else {
+            sendNotification("Break Over!", "Ready to focus again?");
             setMode('work');
             setTimeLeft(STUDY_METHODS[method].work);
         }
@@ -52,6 +86,7 @@ const Timer = ({ onComplete }) => {
         setIsActive(false);
         setMode('work');
         setTimeLeft(STUDY_METHODS[method].work);
+        document.title = 'Study Streak';
     };
 
     const formatTime = (seconds) => {
