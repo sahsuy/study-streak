@@ -1,3 +1,6 @@
+**Check it out**
+https://sahsuy.github.io/study-streak/
+
 # **Study Streak**
 
 > *A slightly addictive way to get things done.*
